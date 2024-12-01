@@ -1,24 +1,15 @@
 use std::collections::HashMap;
 
 pub fn read_input(input: &str) -> (Vec<i128>, Vec<i128>) {
-    let mut list1 = Vec::new();
-    let mut list2 = Vec::new();
+    let nums = input
+        .split_ascii_whitespace()
+        .filter_map(|s| s.parse().ok())
+        .collect::<Vec<_>>();
 
-    for line in input.lines() {
-        match line
-            .split_whitespace()
-            .filter_map(|s| s.parse().ok())
-            .collect::<Vec<i128>>()
-            .as_slice()
-        {
-            &[num1, num2] => {
-                list1.push(num1);
-                list2.push(num2);
-            }
-            _ => break,
-        }
-    }
-    (list1, list2)
+    (
+        nums.iter().skip(0).step_by(2).cloned().collect(),
+        nums.iter().skip(1).step_by(2).cloned().collect(),
+    )
 }
 
 pub fn part1_solution(input: &str) -> u128 {
