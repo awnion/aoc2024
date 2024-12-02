@@ -1,7 +1,24 @@
-mod day1;
+use aoc2024::*;
+
+macro_rules! elapsed {
+    ($e:expr) => {{
+        let start = std::time::Instant::now();
+        let res = $e;
+        format!("{:>10.0?} {:>15}", start.elapsed(), res)
+    }};
+}
 
 fn main() {
-    let day1_input = include_str!("../inputs/day1.txt");
-    println!("Day 1 - Part 1: {}", day1::part1_solution(day1_input));
-    println!("Day 1 - Part 2: {}", day1::part2_solution(day1_input));
+    let days = [
+        //
+        aoc2024::Day01::parts,
+        aoc2024::Day02::parts,
+    ];
+
+    for (day, parts_fn) in days.iter().enumerate() {
+        println!("Day {}", day + 1);
+        for (part, part_fn) in parts_fn().iter().enumerate() {
+            println!("{:>12} {}: {}", "Part", part + 1, elapsed!(part_fn()));
+        }
+    }
 }

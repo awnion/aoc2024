@@ -1,4 +1,5 @@
 default:
+	cargo build -r -q
 	cargo run -r -q
 
 test:
