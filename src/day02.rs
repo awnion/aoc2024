@@ -23,7 +23,7 @@ fn is_safe<'a>(mut it: impl Iterator<Item = &'a u64>) -> bool {
         let Some(&x) = it.next() else { return true };
         x
     };
-    while let Some(&y) = it.next() {
+    for &y in it {
         if y > x + 3 || y <= x {
             return false;
         }
@@ -74,7 +74,19 @@ mod tests {
     }
 
     #[test]
+    fn part1_test_input() {
+        let input = include_str!("../inputs/day02.txt");
+        assert_eq!(part1_solution(input), "624");
+    }
+
+    #[test]
     fn part2_test() {
         assert_eq!(part2_solution(INPUT), "4");
+    }
+
+    #[test]
+    fn part2_test_input() {
+        let input = include_str!("../inputs/day02.txt");
+        assert_eq!(part2_solution(input), "658");
     }
 }

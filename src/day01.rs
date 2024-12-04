@@ -20,10 +20,7 @@ impl Day for Day01 {
 pub fn read_input(input: &str) -> (Vec<i64>, Vec<i64>) {
     let nums = input.split_ascii_whitespace().filter_map(|s| s.parse().ok()).collect::<Vec<_>>();
 
-    (
-        nums.iter().skip(0).step_by(2).cloned().collect(),
-        nums.iter().skip(1).step_by(2).cloned().collect(),
-    )
+    (nums.iter().step_by(2).cloned().collect(), nums.iter().skip(1).step_by(2).cloned().collect())
 }
 
 pub fn part1_solution(input: &str) -> String {
@@ -80,7 +77,19 @@ mod tests {
     }
 
     #[test]
+    fn part1_test_input() {
+        let input = include_str!("../inputs/day01.txt");
+        assert_eq!(part1_solution(input), "1938424");
+    }
+
+    #[test]
     fn part2_test() {
         assert_eq!(part2_solution(INPUT), "31");
+    }
+
+    #[test]
+    fn part2_test_input() {
+        let input = include_str!("../inputs/day01.txt");
+        assert_eq!(part2_solution(input), "22014209");
     }
 }

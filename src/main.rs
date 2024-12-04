@@ -1,4 +1,12 @@
-use aoc2024::*;
+use std::io;
+use std::io::Write;
+
+use aoc2024::Day;
+use rayon::iter::IndexedParallelIterator;
+use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::ParallelIterator;
+
+const PARALLEL: bool = false;
 
 macro_rules! elapsed {
     ($e:expr) => {{
@@ -13,12 +21,26 @@ fn main() {
         //
         aoc2024::Day01::parts,
         aoc2024::Day02::parts,
+        aoc2024::Day03::parts,
     ];
 
-    for (day, parts_fn) in days.iter().enumerate() {
-        println!("Day {}", day + 1);
-        for (part, part_fn) in parts_fn().iter().enumerate() {
-            println!("{:>12} {}: {}", "Part", part + 1, elapsed!(part_fn()));
+    let handler_day = |day, parts: Vec<Box<dyn Fn() -> String>>| {
+        let mut res = Vec::new();
+        writeln!(&mut res, "Day {}", day + 1).unwrap();
+        for (part, part_fn) in parts.iter().enumerate() {
+            writeln!(&mut res, "{:>12} {}: {}", "Part", part + 1, elapsed!(part_fn())).unwrap();
         }
+        res
+    };
+    let res: Vec<Vec<u8>> = {
+        if PARALLEL {
+            days.par_iter().enumerate().map(|(day, parts)| handler_day(day, parts())).collect()
+        } else {
+            days.iter().enumerate().map(|(day, parts)| handler_day(day, parts())).collect()
+        }
+    };
+
+    for s in res {
+        io::stdout().write_all(&s).unwrap();
     }
 }

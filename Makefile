@@ -3,6 +3,6 @@ default:
 	cargo run -r -q
 
 test:
-	cargo test
+	cargo test -r
 
 .PHONY: default test
