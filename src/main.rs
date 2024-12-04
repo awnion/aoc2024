@@ -22,6 +22,7 @@ fn main() {
         aoc2024::Day01::parts,
         aoc2024::Day02::parts,
         aoc2024::Day03::parts,
+        aoc2024::Day04::parts,
     ];
 
     let handler_day = |day, parts: Vec<Box<dyn Fn() -> String>>| {
