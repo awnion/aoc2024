@@ -1,7 +1,8 @@
-use std::collections::HashMap;
+use std::cmp::Ordering;
 use std::collections::HashSet;
 
 use rayon::iter::IntoParallelRefIterator;
+use rayon::iter::IntoParallelRefMutIterator;
 use rayon::iter::ParallelIterator;
 
 use crate::day::Day;
@@ -15,16 +16,17 @@ impl Day for Day05 {
     }
 }
 
-fn read_input(input: &str) -> (HashMap<u64, HashSet<u64>>, Vec<Vec<u64>>) {
-    let mut lines = input.lines().into_iter();
+fn read_input(input: &str) -> (HashSet<(u64, u64)>, Vec<Vec<u64>>) {
+    let mut lines = input.lines();
 
     // read page map
-    let mut page_map: HashMap<u64, HashSet<u64>> = HashMap::new();
+    let mut page_map: HashSet<(u64, u64)> = HashSet::new();
 
     lines.by_ref().take_while(|line| !line.trim().is_empty()).for_each(|line| {
         let mut iter = line.split('|').filter_map(|s| s.parse::<u64>().ok());
+
         if let (Some(a), Some(b)) = (iter.next(), iter.next()) {
-            page_map.entry(a).or_default().insert(b);
+            page_map.insert((a, b));
         }
     });
 
@@ -34,51 +36,28 @@ fn read_input(input: &str) -> (HashMap<u64, HashSet<u64>>, Vec<Vec<u64>>) {
     (page_map, pages)
 }
 
-fn is_correct(book: &[u64], page_map: &HashMap<u64, HashSet<u64>>) -> bool {
-    let mut visited = HashSet::new();
-    for &page in book.iter() {
-        if let Some(pages_should_be_after) = page_map.get(&page) {
-            if visited.intersection(pages_should_be_after).count() > 0 {
-                return false;
-            }
-        }
-        visited.insert(page);
-    }
-    true
-}
-
 pub fn part1_solution(input: &str) -> String {
     let (page_map, books) = read_input(input);
 
     books
         .par_iter()
-        .filter(|book| is_correct(book, &page_map))
+        .filter(|&book| book.is_sorted_by(|&a, &b| !page_map.contains(&(b, a))))
         .map(|book| book[book.len() / 2])
         .sum::<u64>()
         .to_string()
 }
 
 pub fn part2_solution(input: &str) -> String {
-    let (page_map, books) = read_input(input);
+    let (page_map, mut books) = read_input(input);
 
     books
-        .par_iter()
-        .filter(|book| !is_correct(book, &page_map))
+        .par_iter_mut()
+        .filter(|book| !book.is_sorted_by(|&a, &b| !page_map.contains(&(b, a))))
         .map(|book| {
-            let mut new_book = book.to_vec();
-            let mut i = 0;
-            'w: while i < new_book.len() {
-                for j in (i + 1..new_book.len()).rev() {
-                    if let Some(set) = page_map.get(&new_book[j]) {
-                        if set.contains(&new_book[i]) {
-                            new_book[i..=j].rotate_left(1);
-                            continue 'w;
-                        }
-                    }
-                }
-                i += 1;
-            }
-            new_book[new_book.len() / 2]
+            book.sort_by(|&a, &b| {
+                page_map.contains(&(b, a)).then_some(Ordering::Greater).unwrap_or(Ordering::Less)
+            });
+            book[book.len() / 2]
         })
         .sum::<u64>()
         .to_string()
