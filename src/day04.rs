@@ -12,7 +12,7 @@ impl Day for Day04 {
 pub fn part1_solution(input: &str) -> String {
     let map = input.lines().map(|x| x.as_bytes()).collect::<Vec<_>>();
     let n = map.len();
-    let m = map.get(0).expect("first line is not empty").len();
+    let m = map.first().expect("first line is not empty").len();
     let mut count = 0;
     for i in 0..n {
         for j in 0..m {
@@ -59,7 +59,7 @@ pub fn part1_solution(input: &str) -> String {
 pub fn part2_solution(input: &str) -> String {
     let map = input.lines().map(|x| x.as_bytes()).collect::<Vec<_>>();
     let n = map.len();
-    let m = map.get(0).expect("first line is not empty").len();
+    let m = map.first().expect("first line is not empty").len();
     let mut count = 0;
     for i in 1..n - 1 {
         for j in 1..m - 1 {
