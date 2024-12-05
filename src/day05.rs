@@ -1,4 +1,3 @@
-use std::cmp::Ordering;
 use std::collections::HashSet;
 
 use rayon::iter::IntoParallelRefIterator;
@@ -12,51 +11,47 @@ pub struct Day05;
 impl Day for Day05 {
     fn parts() -> Vec<Box<dyn Fn() -> String>> {
         let input = include_str!("../inputs/day05.txt");
-        vec![Box::new(|| part1_solution(input)), Box::new(|| part2_solution(input))]
+        vec![
+            Box::new(|| part1_solution(input).to_string()),
+            Box::new(|| part2_solution(input).to_string()),
+        ]
     }
 }
 
 fn read_input(input: &str) -> (HashSet<(u64, u64)>, Vec<Vec<u64>>) {
     let mut lines = input.lines();
-
-    // read page map
-    let mut page_map: HashSet<(u64, u64)> = HashSet::new();
-
-    lines.by_ref().take_while(|line| !line.trim().is_empty()).for_each(|line| {
-        let mut iter = line.split('|').filter_map(|s| s.parse::<u64>().ok());
-
-        if let (Some(a), Some(b)) = (iter.next(), iter.next()) {
-            page_map.insert((a, b));
-        }
-    });
-
-    // read books
-    let pages = lines.map(|s| s.split(',').filter_map(|s| s.parse().ok()).collect()).collect();
-
-    (page_map, pages)
+    (
+        lines
+            .by_ref()
+            .take_while(|line| !line.is_empty())
+            .map(|line| {
+                let mut it = line.split('|').filter_map(|s| s.parse::<u64>().ok());
+                (it.next().unwrap(), it.next().unwrap())
+            })
+            .collect(),
+        lines.map(|line| line.split(',').filter_map(|s| s.parse().ok()).collect()).collect(),
+    )
 }
 
 pub fn part1_solution(input: &str) -> String {
-    let (page_map, books) = read_input(input);
+    let (ordering, books) = read_input(input);
 
     books
         .par_iter()
-        .filter(|&book| book.is_sorted_by(|&a, &b| !page_map.contains(&(b, a))))
+        .filter(|&book| book.is_sorted_by(|&a, &b| !ordering.contains(&(b, a))))
         .map(|book| book[book.len() / 2])
         .sum::<u64>()
         .to_string()
 }
 
 pub fn part2_solution(input: &str) -> String {
-    let (page_map, mut books) = read_input(input);
+    let (ordering, mut books) = read_input(input);
 
     books
         .par_iter_mut()
-        .filter(|book| !book.is_sorted_by(|&a, &b| !page_map.contains(&(b, a))))
+        .filter(|book| !book.is_sorted_by(|&a, &b| !ordering.contains(&(b, a))))
         .map(|book| {
-            book.sort_by(|&a, &b| {
-                page_map.contains(&(b, a)).then_some(Ordering::Greater).unwrap_or(Ordering::Less)
-            });
+            book.sort_by(|&a, &b| ordering.contains(&(b, a)).cmp(&true));
             book[book.len() / 2]
         })
         .sum::<u64>()
