@@ -11,10 +11,7 @@ pub struct Day05;
 impl Day for Day05 {
     fn parts() -> Vec<Box<dyn Fn() -> String>> {
         let input = include_str!("../inputs/day05.txt");
-        vec![
-            Box::new(|| part1_solution(input).to_string()),
-            Box::new(|| part2_solution(input).to_string()),
-        ]
+        vec![Box::new(|| part1_solution(input)), Box::new(|| part2_solution(input))]
     }
 }
 
